@@ -7,9 +7,8 @@ Create Date: 2025-06-16 21:14:51.034179
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '84a8feaefb90'
@@ -20,7 +19,19 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    pass
+    op.create_table(
+        "user",
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
+        sa.Column("provider", sa.String),
+        sa.Column("login_id", sa.String, unique=True, nullable=False),
+        sa.Column("password", sa.String),
+        sa.Column("name", sa.String),
+        sa.Column("email", sa.String),
+        sa.Column("created_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column("modified_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column("deleted_at", sa.TIMESTAMP),
+        sa.PrimaryKeyConstraint("id")
+    )
 
 
 def downgrade() -> None:

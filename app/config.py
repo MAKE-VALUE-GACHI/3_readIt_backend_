@@ -6,11 +6,12 @@ load_dotenv(verbose=True)
 
 
 class Settings(BaseSettings):
-    # App
-    DATABASE_USER: str
-    DATABASE_PASSWORD: str
+    APP_PORT: int = 8080
+    # Database
     DATABASE_HOST: str
     DATABASE_NAME: str
+    DATABASE_USER: str
+    DATABASE_PASSWORD: str
 
 
 settings = Settings()

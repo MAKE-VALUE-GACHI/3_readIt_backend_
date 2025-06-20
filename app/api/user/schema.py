@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class GetUserRes(BaseModel):
@@ -6,4 +6,4 @@ class GetUserRes(BaseModel):
 
     id: int
     login_id: str
-    username: str
+    username: str = Field(validation_alias="name")

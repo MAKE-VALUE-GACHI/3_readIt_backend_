@@ -15,5 +15,5 @@ class User(Base):
     email = Column(String)
     name = Column(String)
     created_at = Column(TIMESTAMP(timezone=True), default=now())
-    updated_at = Column(TIMESTAMP(timezone=True), default=now())
+    modified_at = Column(TIMESTAMP(timezone=True), default=now())
     deleted_at = Column(TIMESTAMP(timezone=True))

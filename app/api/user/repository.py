@@ -9,3 +9,14 @@ async def find_by_id(session: AsyncSession, user_id: int) -> User:
 
     result = await session.execute(query)
     return result.scalar()
+
+
+async def find_by_email(session: AsyncSession, email: str) -> User:
+    query = (
+        select(User).
+        where(User.login_id == email).
+        where(User.deleted_at.is_(None))
+    )
+
+    result = await session.execute(query)
+    return result.scalar()

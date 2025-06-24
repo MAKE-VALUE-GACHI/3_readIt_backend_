@@ -55,7 +55,7 @@ def make_mock_oauth_client():
     return mock_client
 
 
-def test_social_callback_should_return_user_info(setup_database, test_client):
+def test_social_callback_should_return_jwt_token(setup_database, test_client):
     # given
     mock_oauth_client = make_mock_oauth_client()
     app.dependency_overrides[get_oauth_client] = lambda: mock_oauth_client

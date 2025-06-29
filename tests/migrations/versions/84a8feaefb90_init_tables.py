@@ -32,6 +32,21 @@ def upgrade() -> None:
         sa.Column("deleted_at", sa.TIMESTAMP),
         sa.PrimaryKeyConstraint("id")
     )
+    op.create_table(
+        "scrap",
+        sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("task_id", sa.String(255), unique=True, nullable=False),
+        sa.Column("status", sa.String(255), nullable=False, server_default=sa.text("'processing'")),
+        sa.Column("user_id", sa.Integer, nullable=False),
+        sa.Column("category_id", sa.String(255), nullable=True),
+        sa.Column("type", sa.String(255), nullable=False),
+        sa.Column("subject", sa.String(255), nullable=False),
+        sa.Column("content", sa.String(2000), nullable=False),
+        sa.Column("is_public", sa.Boolean, nullable=False, server_default=sa.text("false")),
+        sa.Column("view_count", sa.Integer, nullable=False, server_default="0"),
+        sa.Column("origin_url", sa.String(255), nullable=True),
+        sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("modified_at", sa.TIMESTAMP(timezone=True), nullable=False))
 
 
 def downgrade() -> None:

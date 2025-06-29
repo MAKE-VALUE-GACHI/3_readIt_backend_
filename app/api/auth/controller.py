@@ -1,16 +1,15 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header
 from fastapi.responses import RedirectResponse
 from loguru import logger
 
+from app.api.auth.schema import LoginRes, RefreshTokenRes
+from app.api.auth.utils import get_jwt_provider, JwtTokenProvider
 from app.api.user import service, schema
 from app.client.oauth_client import get_oauth_client, OAuthClient
 from app.db.session import get_session
-from app.api.auth.schema import LoginRes
-import jwt
-from datetime import datetime, timedelta
-from app.config import settings
-from app.api.auth import service as auth_service
-from app.api.auth.utils import get_jwt_provider, JwtTokenProvider
+from app.exceptions.CustomException import CustomException
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -44,9 +43,44 @@ async def social_callback(code: str,
             email=user_info.email,
             name=user_info.name,
         )
-        user = await service.store_user(session, store_request)
+        await service.store_user(session, store_request)
 
     # JWT 토큰 생성 (JwtTokenProvider 유틸 사용)
     server_access_token = jwt_provider.create_access_token(user_info.email)
     server_refresh_token = jwt_provider.create_refresh_token(user_info.email)
     return LoginRes(access_token=server_access_token, refresh_token=server_refresh_token)
+
+
+@router.get(
+    path="/refresh",
+    response_model=RefreshTokenRes)
+async def refresh_token(
+        authorization: Optional[str] = Header(None),
+        jwt_provider: JwtTokenProvider = Depends(get_jwt_provider)
+):
+    """
+    Authorization 헤더의 refresh token을 받아서 새로운 access token을 발급합니다.
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        raise CustomException(status_code=401, message="Authorization header with Bearer token is required")
+
+    refresh_token = authorization.replace("Bearer ", "")
+
+    try:
+        # refresh token 검증
+        payload = jwt_provider.decode_token(refresh_token)
+        email = payload.get("sub")
+
+        if not email:
+            raise CustomException(status_code=401, message="Invalid refresh token")
+
+        logger.debug("refresh_token * email: {}", email)
+
+        # 새로운 access token만 발급
+        new_access_token = jwt_provider.create_access_token(email)
+
+        return RefreshTokenRes(access_token=new_access_token)
+
+    except Exception as e:
+        logger.error("refresh_token error * {}", str(e))
+        raise CustomException(status_code=401, message="Invalid or expired refresh token")

@@ -1,12 +1,15 @@
 import sys
+from typing import cast
 
 import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 from app.api.routers import api_router
 from app.config import settings
+from app.exceptions.CustomException import CustomException
 
 # Logger
 logger.remove()
@@ -32,6 +35,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def custom_exception_handler(request, exception):
+    e = cast(CustomException, exception)
+    logger.error("error * [{}/{}]", e.status_code, e.message)
+
+    return JSONResponse({"detail": e.message}, status_code=e.status_code)
+
+
+def exception_handler(request, exception):
+    logger.error("uncaught exception * {}", sys.exc_info())
+
+    return JSONResponse(status_code=500, content={"detail": str(exception)})
+
+
+app.add_exception_handler(CustomException, custom_exception_handler)
+app.add_exception_handler(Exception, exception_handler)
 
 app.include_router(api_router)
 

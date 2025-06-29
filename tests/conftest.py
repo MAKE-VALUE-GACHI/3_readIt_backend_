@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from loguru import logger
 from sqlalchemy import URL, create_engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
+from app.main import app
 
 from app.config import settings
 
@@ -22,8 +23,6 @@ logger.add(
 
 @pytest.fixture(scope="function")
 def test_client():
-    from app.main import app
-
     with TestClient(app) as api_client:
         yield api_client
 
@@ -59,3 +58,9 @@ def setup_database():
     finally:
         if settings.DATABASE_HOST == "localhost":
             drop_database(url)
+
+
+@pytest.fixture(autouse=True)
+def clear_dependency_overrides():
+    yield
+    app.dependency_overrides = {}

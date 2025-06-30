@@ -31,3 +31,10 @@ class StatusResponse(BaseModel):
     view_count: int
     created_at: datetime
     modified_at: datetime
+
+class UpdateScrapRequest(BaseModel):
+    category_id: str
+    type: str
+    subject: str
+    content: str
+    is_public: bool

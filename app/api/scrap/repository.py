@@ -1,7 +1,8 @@
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.models import Scrap  # SQLAlchemy 모델
-from app.api.scrap.schema import ScrapRequest, StatusEnum  # Pydantic 스키마 및 Enum
+from app.models.models import Scrap 
+from app.api.scrap.schema import ScrapRequest, StatusEnum, UpdateScrapRequest
+from datetime import datetime, timezone
 
 async def create_scrap_record(
     session: AsyncSession,
@@ -34,6 +35,12 @@ async def get_scrap_by_task_id(session: AsyncSession, task_id: str) -> Scrap | N
     result = await session.execute(query)
     return result.scalar()
 
+async def get_scrap_by_id(session: AsyncSession, scrap_id: int) -> Scrap | None:
+
+    query = select(Scrap).where(Scrap.id == scrap_id)
+    result = await session.execute(query)
+    return result.scalar()
+
 
 async def update_scrap_with_summary(
     session: AsyncSession,
@@ -59,5 +66,23 @@ async def update_scrap_with_summary(
     
     result = await session.execute(query)
     await session.commit()
-    
     return result.scalar_one_or_none()
+
+async def update_scrap_record(session: AsyncSession, scrap, scrap_in: UpdateScrapRequest):
+    
+    if scrap is None:
+        return None
+    
+    update_data = scrap_in.model_dump(exclude_unset=True)
+    
+    for field, value in update_data.items():
+        setattr(scrap, field, value)
+
+    scrap.modified_at = datetime.now(timezone.utc)
+    
+    session.add(scrap)
+    await session.commit()
+    
+    await session.refresh(scrap)
+    
+    return scrap

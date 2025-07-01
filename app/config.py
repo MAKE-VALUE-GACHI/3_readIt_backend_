@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str
     # JWT
     SECRET_KEY: str
+    # OpenAI
+    OPENAI_API_KEY: str
 
 
 settings = Settings()

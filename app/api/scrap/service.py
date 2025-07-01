@@ -13,7 +13,7 @@ async def create_scrap_service(session, task_id: uuid.uuid4, scrap_in: ScrapRequ
         scrap_in=scrap_in
     )
 
-    celery_app.send_task('app.dependency.celery_service.create_scrap_task', args=[task_id, scrap_in.origin_url])
+    celery_app.send_task('app.dependency.celery_service.create_scrap_task', args=[task_id, scrap_in.origin_url, scrap_in.type])
     
     return schema.ScrapResponse.model_validate({"task_id":task_id})
 

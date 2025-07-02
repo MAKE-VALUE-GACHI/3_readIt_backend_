@@ -1,4 +1,9 @@
+import sys
+
+from loguru import logger
+
 from app.api.user import schema, repository
+from app.exceptions.CustomException import CustomException
 from app.models.models import User
 
 
@@ -20,6 +25,7 @@ async def store_user(session, request: schema.StoreUserReq):
         new_user = User(
             provider=request.provider,
             login_id=request.login_id,
+            profile_url=request.picture,
             email=request.email,
             password=request.password,
             name=request.name
@@ -30,3 +36,26 @@ async def store_user(session, request: schema.StoreUserReq):
         await session.refresh(new_user)
 
         return new_user
+
+
+async def update_user(session, user_id: int, request: schema.UpdateUserReq):
+    try:
+        async with session as session:
+            user = await repository.find_by_id(session, user_id)
+
+            if not user:
+                raise CustomException("회원 정보 미존재")
+
+            user.name = request.name
+
+            await session.commit()
+
+    except Exception as e:
+        await session.rollback()
+
+        if isinstance(e, CustomException):
+            raise e
+
+        logger.error("error : {}", sys.exc_info())
+
+        raise CustomException("수정 실패")

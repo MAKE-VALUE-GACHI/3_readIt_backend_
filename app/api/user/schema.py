@@ -17,3 +17,10 @@ class StoreUserReq(BaseModel):
     email: str
     password: Optional[str] = None
     name: str
+    picture: Optional[str] = None
+
+
+class UpdateUserReq(BaseModel):
+    name: str
+
+

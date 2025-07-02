@@ -12,6 +12,7 @@ class User(Base):
     provider = Column(String)
     login_id = Column(String, unique=True, nullable=False)
     password = Column(String)
+    profile_url = Column(String)
     email = Column(String)
     name = Column(String)
     created_at = Column(TIMESTAMP(timezone=True), default=now())

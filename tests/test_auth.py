@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from loguru import logger
 
 from app.api.auth.controller import get_oauth_client
-from app.api.auth.utils import get_jwt_provider
+from app.security import get_jwt_provider
 from app.client.schemas.oauth_user_info import GoogleUserInfo
 from app.main import app
 

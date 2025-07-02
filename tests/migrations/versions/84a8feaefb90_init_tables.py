@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column("login_id", sa.String(255), unique=True, nullable=False),
         sa.Column("password", sa.String(255)),
         sa.Column("name", sa.String(255)),
+        sa.Column("profile_url", sa.String(255)),
         sa.Column("email", sa.String(255)),
         sa.Column("created_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
         sa.Column("modified_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),

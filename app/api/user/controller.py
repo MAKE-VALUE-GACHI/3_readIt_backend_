@@ -3,6 +3,7 @@ from loguru import logger
 
 from app.api.user import schema, service
 from app.db.session import get_session
+from app.security import get_current_user
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -16,3 +17,19 @@ async def get_user(user_id: int, session=Depends(get_session)):
 
     user = await service.get_user(session, user_id)
     return user
+
+
+@router.put(
+    path="/{user_id}",
+)
+async def update_user(
+        user_id: int,
+        request: schema.UpdateUserReq,
+        session=Depends(get_session),
+        current_user=Depends(get_current_user)
+):
+    logger.info("update_user * {}", user_id)
+
+    await service.update_user(session, user_id, request)
+
+    return True

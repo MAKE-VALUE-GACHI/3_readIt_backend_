@@ -5,11 +5,11 @@ from fastapi.responses import RedirectResponse
 from loguru import logger
 
 from app.api.auth.schema import LoginRes, RefreshTokenRes
-from app.api.auth.utils import get_jwt_provider, JwtTokenProvider
 from app.api.user import service, schema
 from app.client.oauth_client import get_oauth_client, OAuthClient
 from app.db.session import get_session
 from app.exceptions.CustomException import CustomException
+from app.security import get_jwt_provider, JwtTokenProvider
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -42,6 +42,7 @@ async def social_callback(code: str,
             login_id=user_info.email,
             email=user_info.email,
             name=user_info.name,
+            picture=user_info.picture
         )
         await service.store_user(session, store_request)
 
@@ -53,14 +54,12 @@ async def social_callback(code: str,
 
 @router.get(
     path="/refresh",
-    response_model=RefreshTokenRes)
+    response_model=RefreshTokenRes
+)
 async def refresh_token(
         authorization: Optional[str] = Header(None),
         jwt_provider: JwtTokenProvider = Depends(get_jwt_provider)
 ):
-    """
-    Authorization 헤더의 refresh token을 받아서 새로운 access token을 발급합니다.
-    """
     if not authorization or not authorization.startswith("Bearer "):
         raise CustomException(status_code=401, message="Authorization header with Bearer token is required")
 
@@ -69,12 +68,12 @@ async def refresh_token(
     try:
         # refresh token 검증
         payload = jwt_provider.decode_token(refresh_token)
-        email = payload.get("sub")
+        email = payload.sub
 
         if not email:
             raise CustomException(status_code=401, message="Invalid refresh token")
 
-        logger.debug("refresh_token * email: {}", email)
+        logger.debug("refresh email : {}", email)
 
         # 새로운 access token만 발급
         new_access_token = jwt_provider.create_access_token(email)

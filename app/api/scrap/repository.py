@@ -86,3 +86,15 @@ async def update_scrap_record(session: AsyncSession, scrap, scrap_in: UpdateScra
     await session.refresh(scrap)
     
     return scrap
+
+async def delete_scrap_record(session: AsyncSession, scrap_id: int):
+
+    scrap_to_delete = await get_scrap_by_id(session=session, scrap_id=scrap_id)
+    
+    if scrap_to_delete is None:
+        return None
+        
+    await session.delete(scrap_to_delete)
+    await session.commit()
+    
+    return scrap_to_delete

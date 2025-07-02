@@ -20,6 +20,7 @@ class ScrapResponse(BaseModel):
 
 class StatusResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    id: int
     status: StatusEnum
     user_id: int
     category_id: str

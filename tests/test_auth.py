@@ -96,6 +96,8 @@ def test_refresh_token_should_return_new_access_token(test_client):
 
     assert "access_token" in data
     assert isinstance(data["access_token"], str)
+    new_payload = jwt_provider.decode_token(data["access_token"])
+    logger.debug("refresh payload : {}", new_payload.dict())
 
     # 새로운 access token이 기존 refresh token과 다른지 확인
     assert data["access_token"] != refresh_token
@@ -111,7 +113,7 @@ def test_refresh_token_without_authorization_header_should_return_401(test_clien
     # then
     assert response.status_code == 401
     data = response.json()
-    assert "Authorization header with Bearer token is required" in data["message"]
+    assert "Authorization header with Bearer token is required" in data["detail"]
 
 
 def test_refresh_token_with_invalid_bearer_format_should_return_401(test_client):

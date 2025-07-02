@@ -11,7 +11,7 @@ from app.exceptions.CustomException import CustomException
 
 
 class TokenPayload(BaseModel):
-    sub: int
+    sub: str
     email: str
     exp: int
     iat: int
@@ -22,12 +22,13 @@ class JwtTokenProvider:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def create_token(self, subject,
+    def create_token(self,
+                     user_id: int,
                      expires_delta: timedelta,
                      additional_claims: Optional[Dict[str, Any]] = None) -> str:
         now = datetime.now(ZoneInfo("Asia/Seoul"))
         payload = {
-            "sub": str(subject),
+            "sub": str(user_id),
             "exp": int((now + expires_delta).timestamp()),
             "iat": int(now.timestamp()),
         }
@@ -36,15 +37,17 @@ class JwtTokenProvider:
 
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def create_access_token(self, subject,
+    def create_access_token(self,
+                            user_id,
                             expires_delta: timedelta = timedelta(minutes=30),
                             additional_claims: Optional[Dict[str, Any]] = None) -> str:
-        return self.create_token(subject, expires_delta, additional_claims)
+        return self.create_token(user_id, expires_delta, additional_claims)
 
-    def create_refresh_token(self, subject,
+    def create_refresh_token(self,
+                             user_id,
                              expires_delta: timedelta = timedelta(days=7),
                              additional_claims: Optional[Dict[str, Any]] = None) -> str:
-        return self.create_token(subject, expires_delta, additional_claims)
+        return self.create_token(user_id, expires_delta, additional_claims)
 
     def decode_token(self, token: str) -> TokenPayload:
         payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
@@ -58,7 +61,7 @@ def get_jwt_provider():
     return jwt_provider
 
 
-def get_current_user(request: Request):
+def get_current_user(request: Request) -> TokenPayload:
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise CustomException(status_code=status.HTTP_401_UNAUTHORIZED,

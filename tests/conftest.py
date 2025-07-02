@@ -91,5 +91,5 @@ def clear_dependency_overrides():
 
 @pytest.fixture(scope="function")
 def user_auth_header():
-    token = jwt_provider.create_access_token(subject=1, additional_claims={'email': "test"})
+    token = jwt_provider.create_access_token(user_id=1, additional_claims={'email': "test"})
     return {'Authorization': f"Bearer {token}"}

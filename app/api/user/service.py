@@ -42,7 +42,7 @@ async def store_user(session, request: schema.StoreUserReq):
 async def update_user(session, current_user: TokenPayload, request: schema.UpdateUserReq):
     try:
         async with session as session:
-            user = await repository.find_by_id(session, current_user.sub)
+            user = await repository.find_by_id(session, int(current_user.sub))
 
             if not user:
                 raise CustomException("회원 정보 미존재")

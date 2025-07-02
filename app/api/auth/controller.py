@@ -48,11 +48,11 @@ async def social_callback(code: str,
 
     # JWT 토큰 생성 (JwtTokenProvider 유틸 사용)
     server_access_token = jwt_provider.create_access_token(
-        subject=user.id,
+        user_id=user.id,
         additional_claims={'email': user_info.email}
     )
     server_refresh_token = jwt_provider.create_refresh_token(
-        subject=user.id,
+        user_id=user.id,
         additional_claims={'email': user_info.email}
     )
 
@@ -80,11 +80,9 @@ async def refresh_token(
         if not user_id:
             raise CustomException(status_code=401, message="Invalid refresh token")
 
-        logger.debug("refresh user_id : {}", user_id)
-
         # 새로운 access token만 발급
         new_access_token = jwt_provider.create_access_token(
-            subject=user_id,
+            user_id=user_id,
             additional_claims={'email': payload.email}
         )
 

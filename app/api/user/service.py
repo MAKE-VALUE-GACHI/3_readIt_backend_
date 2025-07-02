@@ -5,6 +5,7 @@ from loguru import logger
 from app.api.user import schema, repository
 from app.exceptions.CustomException import CustomException
 from app.models.models import User
+from app.security import TokenPayload
 
 
 async def get_user(session, user_id: int):
@@ -38,10 +39,10 @@ async def store_user(session, request: schema.StoreUserReq):
         return new_user
 
 
-async def update_user(session, user_id: int, request: schema.UpdateUserReq):
+async def update_user(session, current_user: TokenPayload, request: schema.UpdateUserReq):
     try:
         async with session as session:
-            user = await repository.find_by_id(session, user_id)
+            user = await repository.find_by_id(session, current_user.sub)
 
             if not user:
                 raise CustomException("회원 정보 미존재")

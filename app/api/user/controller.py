@@ -20,16 +20,15 @@ async def get_user(user_id: int, session=Depends(get_session)):
 
 
 @router.put(
-    path="/{user_id}",
+    path="",
 )
 async def update_user(
-        user_id: int,
         request: schema.UpdateUserReq,
         session=Depends(get_session),
         current_user=Depends(get_current_user)
 ):
-    logger.info("update_user * {}", user_id)
+    logger.info("update_user * {}", current_user.sub)
 
-    await service.update_user(session, user_id, request)
+    await service.update_user(session, current_user, request)
 
     return True

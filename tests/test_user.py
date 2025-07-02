@@ -19,7 +19,7 @@ def test_update_user_success(setup_database, database_session, test_client, user
         'name': name
     }
     response = test_client.put(
-        url=f"/user/{user_id}",
+        url=f"/user",
         json=request,
         headers=user_auth_header
     )

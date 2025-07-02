@@ -44,11 +44,18 @@ async def social_callback(code: str,
             name=user_info.name,
             picture=user_info.picture
         )
-        await service.store_user(session, store_request)
+        user = await service.store_user(session, store_request)
 
     # JWT 토큰 생성 (JwtTokenProvider 유틸 사용)
-    server_access_token = jwt_provider.create_access_token(user_info.email)
-    server_refresh_token = jwt_provider.create_refresh_token(user_info.email)
+    server_access_token = jwt_provider.create_access_token(
+        subject=user.id,
+        additional_claims={'email': user_info.email}
+    )
+    server_refresh_token = jwt_provider.create_refresh_token(
+        subject=user.id,
+        additional_claims={'email': user_info.email}
+    )
+
     return LoginRes(access_token=server_access_token, refresh_token=server_refresh_token)
 
 
@@ -68,15 +75,18 @@ async def refresh_token(
     try:
         # refresh token 검증
         payload = jwt_provider.decode_token(refresh_token)
-        email = payload.sub
+        user_id = payload.sub
 
-        if not email:
+        if not user_id:
             raise CustomException(status_code=401, message="Invalid refresh token")
 
-        logger.debug("refresh email : {}", email)
+        logger.debug("refresh user_id : {}", user_id)
 
         # 새로운 access token만 발급
-        new_access_token = jwt_provider.create_access_token(email)
+        new_access_token = jwt_provider.create_access_token(
+            subject=user_id,
+            additional_claims={'email': payload.email}
+        )
 
         return RefreshTokenRes(access_token=new_access_token)
 

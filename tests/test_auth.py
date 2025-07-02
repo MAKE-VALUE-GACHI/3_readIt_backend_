@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 from loguru import logger
 
 from app.api.auth.controller import get_oauth_client
-from app.security import get_jwt_provider
 from app.client.schemas.oauth_user_info import GoogleUserInfo
 from app.main import app
+from app.security import get_jwt_provider
 
 
 def test_google_login_should_redirect_to_google_authorization_url(test_client: TestClient):
@@ -82,7 +82,7 @@ def test_refresh_token_should_return_new_access_token(test_client):
     # given
     jwt_provider = get_jwt_provider()
     test_email = "testuser@example.com"
-    refresh_token = jwt_provider.create_refresh_token(test_email)
+    refresh_token = jwt_provider.create_refresh_token(1, additional_claims={'email': test_email})
 
     headers = {"Authorization": f"Bearer {refresh_token}"}
 

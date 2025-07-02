@@ -1,5 +1,5 @@
 import sys
-from urllib.parse import quote
+
 import pytest
 from alembic.command import upgrade
 from alembic.config import Config
@@ -8,9 +8,9 @@ from loguru import logger
 from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from app.main import app
 
 from app.config import settings
+from app.main import app
 from app.security import jwt_provider
 
 logger.remove()
@@ -91,5 +91,5 @@ def clear_dependency_overrides():
 
 @pytest.fixture(scope="function")
 def user_auth_header():
-    token = jwt_provider.create_access_token("")
+    token = jwt_provider.create_access_token(subject=1, additional_claims={'email': "test"})
     return {'Authorization': f"Bearer {token}"}

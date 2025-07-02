@@ -9,13 +9,13 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 
 @router.get(
-    path="/{user_id}",
+    path="",
     response_model=schema.GetUserRes
 )
-async def get_user(user_id: int, session=Depends(get_session)):
-    logger.info("get_user * {}", user_id)
+async def get_user(current_user=Depends(get_current_user), session=Depends(get_session)):
+    logger.info("get_user * {}", current_user.sub)
 
-    user = await service.get_user(session, user_id)
+    user = await service.get_user(session, current_user)
     return user
 
 

@@ -3,8 +3,8 @@ from loguru import logger
 from app.models.models import User
 
 
-def test_get_user(setup_database, test_client):
-    response = test_client.get(url="/user/1")
+def test_get_user(setup_database, test_client, user_auth_header):
+    response = test_client.get(url="/user", headers=user_auth_header)
 
     logger.debug("response : {}", response.json())
 

@@ -8,8 +8,8 @@ from app.models.models import User
 from app.security import TokenPayload
 
 
-async def get_user(session, user_id: int):
-    user = await repository.find_by_id(session, user_id)
+async def get_user(session, current_user: TokenPayload):
+    user = await repository.find_by_id(session, int(current_user.sub))
 
     return schema.GetUserRes.model_validate(user)
 

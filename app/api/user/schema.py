@@ -8,6 +8,7 @@ class GetUserRes(BaseModel):
 
     id: int
     login_id: str
+    profile_url: Optional[str] = None
     username: str = Field(validation_alias="name")
 
 
@@ -22,5 +23,3 @@ class StoreUserReq(BaseModel):
 
 class UpdateUserReq(BaseModel):
     name: str
-
-

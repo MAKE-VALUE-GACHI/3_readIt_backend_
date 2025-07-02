@@ -8,7 +8,7 @@ from app.api.auth.schema import LoginRes, RefreshTokenRes
 from app.api.user import service, schema
 from app.client.oauth_client import get_oauth_client, OAuthClient
 from app.db.session import get_session
-from app.exceptions.CustomException import CustomException
+from app.exceptions.custom_exception import CustomException
 from app.security import get_jwt_provider, JwtTokenProvider
 
 router = APIRouter(prefix="/auth", tags=["auth"])

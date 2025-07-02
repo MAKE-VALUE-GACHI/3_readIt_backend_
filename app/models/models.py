@@ -19,6 +19,7 @@ class User(Base):
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
     deleted_at = Column(TIMESTAMP(timezone=True))
 
+
 class Scrap(Base):
     __tablename__ = "scrap"
 
@@ -35,4 +36,3 @@ class Scrap(Base):
     origin_url = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), default=now())
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
-

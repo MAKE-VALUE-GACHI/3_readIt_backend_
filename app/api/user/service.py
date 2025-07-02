@@ -3,7 +3,7 @@ import sys
 from loguru import logger
 
 from app.api.user import schema, repository
-from app.exceptions.CustomException import CustomException
+from app.exceptions.custom_exception import CustomException
 from app.models.models import User
 from app.security import TokenPayload
 

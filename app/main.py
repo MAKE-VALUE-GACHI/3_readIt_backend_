@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse
 
 from app.api.routers import api_router
 from app.config import settings
-from app.exceptions.CustomException import CustomException
+from app.exceptions.custom_exception import CustomException
 
 # Logger
 logger.remove()

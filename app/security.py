@@ -7,7 +7,7 @@ from fastapi import status, Request
 from pydantic import BaseModel
 
 from app.config import settings
-from app.exceptions.CustomException import CustomException
+from app.exceptions.custom_exception import CustomException
 
 
 class TokenPayload(BaseModel):

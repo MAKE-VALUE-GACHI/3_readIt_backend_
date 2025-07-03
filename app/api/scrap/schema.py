@@ -9,7 +9,7 @@ class StatusEnum(str, Enum):
 
 class ScrapRequest(BaseModel):
     user_id: int
-    category_id: str
+    category_id: int
     type: str
     is_public: bool
     origin_url: str
@@ -23,7 +23,7 @@ class StatusResponse(BaseModel):
     id: int
     status: StatusEnum
     user_id: int
-    category_id: str
+    category_id: int
     origin_url: str
     type: str
     subject: str
@@ -34,7 +34,7 @@ class StatusResponse(BaseModel):
     modified_at: datetime
 
 class UpdateScrapRequest(BaseModel):
-    category_id: str
+    category_id: int
     type: str
     subject: str
     content: str

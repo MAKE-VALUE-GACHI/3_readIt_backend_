@@ -142,14 +142,10 @@ def create_scrap_task(task_id: str, url: str, summary_type: str):
             else:
                 pass
 
-    # ✨ asyncio.run() 대신 더 안정적인 이벤트 루프 관리 패턴으로 수정
     try:
-        # 현재 스레드의 이벤트 루프를 가져옵니다.
         loop = asyncio.get_event_loop()
     except RuntimeError:
-        # 현재 스레드에 이벤트 루프가 없으면 새로 생성합니다.
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-    # 현재 설정된 이벤트 루프에서 비동기 함수를 실행합니다.
     loop.run_until_complete(_async_update_db())

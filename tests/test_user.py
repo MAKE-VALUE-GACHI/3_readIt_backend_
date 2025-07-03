@@ -34,7 +34,8 @@ def test_update_user_success(setup_database, database_session, test_client, user
 
 def test_get_user_scraps_success(setup_database, database_session, test_client, user_auth_header):
     request = {
-        'page': 1
+        'page': 1,
+        'category': "뉴스"
     }
 
     response = test_client.get(

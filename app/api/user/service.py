@@ -66,8 +66,16 @@ async def get_scraps(session, current_user: TokenPayload, request: schema.GetUse
     async with session as session:
         try:
             offset, limit = request.get_offset_limit()
-            scraps = await repository.find_all_scrap_by_user_id(session, int(current_user.sub), offset, limit)
-            total = await repository.count_scrap_by_user_id(session, int(current_user.sub))
+            filter_dict = {"category": request.category}
+
+            scraps = await repository.find_all_scrap_by_user_id(
+                session,
+                int(current_user.sub),
+                filter_dict,
+                offset,
+                limit
+            )
+            total = await repository.count_scrap_by_user_id(session, int(current_user.sub), filter_dict)
 
             contents = []
             for scrap in scraps:

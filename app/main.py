@@ -42,7 +42,7 @@ def custom_exception_handler(request, exception):
     e = cast(CustomException, exception)
     logger.error("error * [{}/{}]", e.status_code, e.message)
 
-    response = CommonRes(status="fail", code=e.status_code, message=e.message)
+    response = CommonRes(status="fail", code=e.error_code, message=e.message)
     return JSONResponse(response.dict(), status_code=e.status_code)
 
 

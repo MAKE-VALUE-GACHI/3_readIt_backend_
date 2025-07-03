@@ -28,7 +28,7 @@ class UpdateUserReq(BaseModel):
 
 
 class GetUserScrapReq(PagingRequest):
-    pass
+    category: Optional[str] = "etc"
 
 
 class GetUserScrapRes(BaseModel):

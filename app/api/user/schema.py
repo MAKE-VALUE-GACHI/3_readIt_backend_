@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.api.common_schema import PagingRequest
+
 
 class GetUserRes(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -23,3 +25,16 @@ class StoreUserReq(BaseModel):
 
 class UpdateUserReq(BaseModel):
     name: str
+
+
+class GetUserScrapReq(PagingRequest):
+    pass
+
+
+class GetUserScrapRes(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    type: str
+    subject: str
+    category_name: Optional[str] = "etc"

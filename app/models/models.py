@@ -1,5 +1,5 @@
-from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.functions import now
 
 Base = declarative_base()
@@ -8,7 +8,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     provider = Column(String)
     login_id = Column(String, unique=True, nullable=False)
     password = Column(String)
@@ -27,7 +27,7 @@ class Scrap(Base):
     task_id = Column(String, unique=True, nullable=False)
     status = Column(String, nullable=False, default="processing")
     user_id = Column(Integer, nullable=False)
-    category_id = Column(String, nullable=True)
+    category_id = Column(Integer, ForeignKey("category.id"))
     type = Column(String, nullable=False)
     subject = Column(String, nullable=False)
     content = Column(String, nullable=False)
@@ -36,3 +36,15 @@ class Scrap(Base):
     origin_url = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), default=now())
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
+
+    category = relationship('Category', back_populates='scraps', uselist=False)
+
+
+class Category(Base):
+    __tablename__ = "category"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, nullable=False)
+    name = Column(String, nullable=False)
+
+    scraps = relationship('Scrap', back_populates='category')

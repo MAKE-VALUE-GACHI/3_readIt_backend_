@@ -40,7 +40,7 @@ def upgrade() -> None:
                 "task_id": "task-1",
                 "status": "processing",
                 "user_id": 1,
-                "category_id": "oneline",
+                "category_id": 1,
                 "type": "oneline",
                 "subject": "테스트 스크랩",
                 "content": "테스트 스크랩 내용",
@@ -49,6 +49,16 @@ def upgrade() -> None:
                 "origin_url": "https://example.com/test-scrap",
                 "created_at": "2025-06-19 19:48:33.302004",
                 "modified_at": "2025-06-19 19:48:33.302004"
+            }
+        ]
+    )
+    bulk_insert(
+        models.Category.__table__,
+        [
+            {
+                "id": 1,
+                "user_id": 1,
+                "name": "뉴스"
             }
         ]
     )

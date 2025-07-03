@@ -26,7 +26,8 @@ async def social_login(oauth_client: OAuthClient = Depends(get_oauth_client)):
     path="/callback/{provider}",
     name="google oauth callback",
 )
-async def social_callback(code: str,
+async def social_callback(provider: str,
+                          code: str,
                           session=Depends(get_session),
                           oauth_client: OAuthClient = Depends(get_oauth_client),
                           jwt_provider: JwtTokenProvider = Depends(get_jwt_provider)):
@@ -34,7 +35,7 @@ async def social_callback(code: str,
     user_info = oauth_client.get_user_info(access_token)
     logger.debug("social_callback * {}", user_info.model_dump())
 
-    user = await service.get_user_by_email(session=session, email=user_info.email)
+    user = await service.get_user_by_email_and_provider(session, user_info.email, provider)
 
     if not user:
         store_request = schema.StoreUserReq(

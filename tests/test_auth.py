@@ -113,7 +113,7 @@ def test_refresh_token_without_authorization_header_should_return_401(test_clien
     # then
     assert response.status_code == 401
     data = response.json()
-    assert "Authorization header with Bearer token is required" in data["detail"]
+    assert "Authorization header with Bearer token is required" in data["message"]
 
 
 def test_refresh_token_with_invalid_bearer_format_should_return_401(test_client):
@@ -126,7 +126,7 @@ def test_refresh_token_with_invalid_bearer_format_should_return_401(test_client)
     # then
     assert response.status_code == 401
     data = response.json()
-    assert "Authorization header with Bearer token is required" in data["detail"]
+    assert "Authorization header with Bearer token is required" in data["message"]
 
 
 def test_refresh_token_with_invalid_token_should_return_401(test_client):
@@ -142,4 +142,4 @@ def test_refresh_token_with_invalid_token_should_return_401(test_client):
     data = response.json()
 
     logger.debug("response: {}", data)
-    assert "Invalid or expired refresh token" in data["detail"]
+    assert "Invalid or expired refresh token" in data["message"]

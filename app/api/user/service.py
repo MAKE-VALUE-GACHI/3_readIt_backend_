@@ -14,9 +14,9 @@ async def get_user(session, current_user: TokenPayload):
     return schema.GetUserRes.model_validate(user)
 
 
-async def get_user_by_email(session, email: str):
+async def get_user_by_email_and_provider(session, email: str, provider: str):
     async with session as session:
-        user = await repository.find_by_email(session, email)
+        user = await repository.find_by_email_and_provider(session, email, provider)
 
         return user
 
@@ -60,3 +60,26 @@ async def update_user(session, current_user: TokenPayload, request: schema.Updat
         logger.error("error : {}", sys.exc_info())
 
         raise CustomException("수정 실패")
+
+
+async def get_scraps(session, current_user: TokenPayload, request: schema.GetUserScrapReq):
+    async with session as session:
+        try:
+            offset, limit = request.get_offset_limit()
+            scraps = await repository.find_all_scrap_by_user_id(session, int(current_user.sub), offset, limit)
+            total = await repository.count_scrap_by_user_id(session, int(current_user.sub))
+
+            contents = []
+            for scrap in scraps:
+                item = schema.GetUserScrapRes.model_validate(scrap)
+                item.category_name = scrap.category.name if scrap.category else "etc"
+                contents.append(item)
+
+            return contents, total
+        except CustomException as ce:
+            await session.rollback()
+            raise ce
+        except Exception as e:
+            await session.rollback()
+            logger.error("error : {}", sys.exc_info())
+            raise CustomException("스크랩 조회 실패")

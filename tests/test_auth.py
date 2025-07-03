@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 from loguru import logger
 
 from app.api.auth.controller import get_oauth_client
-from app.api.auth.utils import get_jwt_provider
 from app.client.schemas.oauth_user_info import GoogleUserInfo
 from app.main import app
+from app.security import get_jwt_provider
 
 
 def test_google_login_should_redirect_to_google_authorization_url(test_client: TestClient):
@@ -69,7 +69,7 @@ def test_social_callback_should_return_jwt_token(setup_database, test_client):
 
     # then
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()['data']
     logger.debug("response: {}", data)
 
     assert "access_token" in data
@@ -82,7 +82,7 @@ def test_refresh_token_should_return_new_access_token(test_client):
     # given
     jwt_provider = get_jwt_provider()
     test_email = "testuser@example.com"
-    refresh_token = jwt_provider.create_refresh_token(test_email)
+    refresh_token = jwt_provider.create_refresh_token(1, additional_claims={'email': test_email})
 
     headers = {"Authorization": f"Bearer {refresh_token}"}
 
@@ -91,11 +91,13 @@ def test_refresh_token_should_return_new_access_token(test_client):
 
     # then
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()['data']
     logger.debug("refresh response: {}", data)
 
     assert "access_token" in data
     assert isinstance(data["access_token"], str)
+    new_payload = jwt_provider.decode_token(data["access_token"])
+    logger.debug("refresh payload : {}", new_payload.dict())
 
     # 새로운 access token이 기존 refresh token과 다른지 확인
     assert data["access_token"] != refresh_token
@@ -124,7 +126,7 @@ def test_refresh_token_with_invalid_bearer_format_should_return_401(test_client)
     # then
     assert response.status_code == 401
     data = response.json()
-    assert "Authorization header with Bearer token is required" in data["detail"]
+    assert "Authorization header with Bearer token is required" in data["message"]
 
 
 def test_refresh_token_with_invalid_token_should_return_401(test_client):
@@ -140,4 +142,4 @@ def test_refresh_token_with_invalid_token_should_return_401(test_client):
     data = response.json()
 
     logger.debug("response: {}", data)
-    assert "Invalid or expired refresh token" in data["detail"]
+    assert "Invalid or expired refresh token" in data["message"]

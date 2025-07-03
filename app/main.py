@@ -7,9 +7,10 @@ from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
+from app.api.common_schema import CommonRes
 from app.api.routers import api_router
 from app.config import settings
-from app.exceptions.CustomException import CustomException
+from app.exceptions.custom_exception import CustomException
 
 # Logger
 logger.remove()
@@ -41,13 +42,15 @@ def custom_exception_handler(request, exception):
     e = cast(CustomException, exception)
     logger.error("error * [{}/{}]", e.status_code, e.message)
 
-    return JSONResponse({"detail": e.message}, status_code=e.status_code)
+    response = CommonRes(status="fail", code=e.error_code, message=e.message)
+    return JSONResponse(response.dict(), status_code=e.status_code)
 
 
 def exception_handler(request, exception):
     logger.error("uncaught exception * {}", sys.exc_info())
 
-    return JSONResponse(status_code=500, content={"detail": str(exception)})
+    response = CommonRes(status="fail", code=500, message=str(exception))
+    return JSONResponse(response.dict(), status_code=500)
 
 
 app.add_exception_handler(CustomException, custom_exception_handler)

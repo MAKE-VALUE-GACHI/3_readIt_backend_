@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 class CommonRes(BaseModel, Generic[T]):
     status: str = "success"
-    code: int = 200
+    code: Optional[int] = None
     message: str = "요청 처리 성공"
     data: Optional[T] = None
 

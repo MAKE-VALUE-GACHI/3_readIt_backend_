@@ -69,7 +69,7 @@ def test_social_callback_should_return_jwt_token(setup_database, test_client):
 
     # then
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()['data']
     logger.debug("response: {}", data)
 
     assert "access_token" in data
@@ -91,7 +91,7 @@ def test_refresh_token_should_return_new_access_token(test_client):
 
     # then
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()['data']
     logger.debug("refresh response: {}", data)
 
     assert "access_token" in data

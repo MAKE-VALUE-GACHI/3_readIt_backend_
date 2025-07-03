@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from loguru import logger
 
 from app.api.auth.schema import LoginRes, RefreshTokenRes
+from app.api.common_schema import CommonRes
 from app.api.user import service, schema
 from app.client.oauth_client import get_oauth_client, OAuthClient
 from app.db.session import get_session
@@ -25,6 +26,7 @@ async def social_login(oauth_client: OAuthClient = Depends(get_oauth_client)):
 @router.get(
     path="/callback/{provider}",
     name="google oauth callback",
+    response_model=CommonRes[LoginRes]
 )
 async def social_callback(provider: str,
                           code: str,
@@ -57,12 +59,15 @@ async def social_callback(provider: str,
         additional_claims={'email': user_info.email}
     )
 
-    return LoginRes(access_token=server_access_token, refresh_token=server_refresh_token)
+    return CommonRes(
+        data=LoginRes(access_token=server_access_token, refresh_token=server_refresh_token)
+    )
 
 
 @router.get(
     path="/refresh",
-    response_model=RefreshTokenRes
+    name="토큰 리프레시",
+    response_model=CommonRes[RefreshTokenRes]
 )
 async def refresh_token(
         authorization: Optional[str] = Header(None),
@@ -87,7 +92,9 @@ async def refresh_token(
             additional_claims={'email': payload.email}
         )
 
-        return RefreshTokenRes(access_token=new_access_token)
+        return CommonRes(
+            data=RefreshTokenRes(access_token=new_access_token)
+        )
 
     except Exception as e:
         logger.error("refresh_token error * {}", str(e))

@@ -1,16 +1,17 @@
 import sys
-from urllib.parse import quote
+
 import pytest
 from alembic.command import upgrade
 from alembic.config import Config
 from fastapi.testclient import TestClient
 from loguru import logger
 from sqlalchemy import URL, create_engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from app.main import app
 
 from app.config import settings
-
+from app.main import app
+from app.security import jwt_provider
 
 logger.remove()
 
@@ -60,7 +61,35 @@ def setup_database():
             drop_database(url)
 
 
+@pytest.fixture(scope="function")
+def database_session(setup_database):
+    engine = create_engine(
+        url=f"mysql+mysqlconnector://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOST}/{settings.DATABASE_NAME}",
+        echo=True
+    )
+    connection = engine.connect()
+    session = sessionmaker(bind=connection)()
+
+    try:
+        yield session  # 테스트 실행
+
+    except (Exception,):
+        session.rollback()
+        session.close()
+        raise
+
+    finally:
+        session.rollback()
+        session.close()
+
+
 @pytest.fixture(autouse=True)
 def clear_dependency_overrides():
     yield
     app.dependency_overrides = {}
+
+
+@pytest.fixture(scope="function")
+def user_auth_header():
+    token = jwt_provider.create_access_token(user_id=1, additional_claims={'email': "test"})
+    return {'Authorization': f"Bearer {token}"}

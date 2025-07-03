@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column("login_id", sa.String(255), unique=True, nullable=False),
         sa.Column("password", sa.String(255)),
         sa.Column("name", sa.String(255)),
+        sa.Column("profile_url", sa.String(255)),
         sa.Column("email", sa.String(255)),
         sa.Column("created_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
         sa.Column("modified_at", sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
@@ -46,7 +47,14 @@ def upgrade() -> None:
         sa.Column("view_count", sa.Integer, nullable=False, server_default="0"),
         sa.Column("origin_url", sa.String(255), nullable=True),
         sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.Column("modified_at", sa.TIMESTAMP(timezone=True), nullable=False))
+        sa.Column("modified_at", sa.TIMESTAMP(timezone=True), nullable=False)
+    )
+    op.create_table(
+        "category",
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
+        sa.Column("user_id", sa.Integer, nullable=False),
+        sa.Column("name", sa.String(255), nullable=False)
+    )
 
 
 def downgrade() -> None:

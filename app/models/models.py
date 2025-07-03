@@ -18,6 +18,7 @@ class User(Base):
     created_at = Column(TIMESTAMP(timezone=True), default=now())
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
     deleted_at = Column(TIMESTAMP(timezone=True))
+    scraps = relationship('Scrap', back_populates='user')
 
 
 class Scrap(Base):
@@ -26,7 +27,7 @@ class Scrap(Base):
     id = Column(Integer, primary_key=True)
     task_id = Column(String, unique=True, nullable=False)
     status = Column(String, nullable=False, default="processing")
-    user_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     category_id = Column(Integer, ForeignKey("category.id"))
     type = Column(String, nullable=False)
     subject = Column(String, nullable=False)
@@ -38,6 +39,7 @@ class Scrap(Base):
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
 
     category = relationship('Category', back_populates='scraps', uselist=False)
+    user = relationship('User', back_populates='scraps')
 
 
 class Category(Base):

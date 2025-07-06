@@ -41,7 +41,7 @@ def upgrade() -> None:
                 "status": "processing",
                 "user_id": 1,
                 "category_id": 1,
-                "type": "oneline",
+                "type": "one-line",
                 "subject": "테스트 스크랩",
                 "content": "테스트 스크랩 내용",
                 "is_public": True,

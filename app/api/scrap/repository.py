@@ -16,7 +16,7 @@ async def create_scrap_record(
         task_id=task_id,
         status=status,
         user_id=scrap_in.user_id,
-        category_id="시사",
+        category_id=scrap_in.category_id,
         type=scrap_in.type,
         subject="제목을 생성 중입니다...",
         content="",
@@ -33,7 +33,15 @@ async def get_scrap_by_task_id(session: AsyncSession, task_id: str) -> Scrap | N
 
     query = select(Scrap).where(Scrap.task_id == task_id)
     result = await session.execute(query)
-    return result.scalar()
+    scrap = result.scalar()
+    if scrap:
+        scrap.view_count += 1
+        session.add(scrap)
+        await session.commit()
+
+        await session.refresh(scrap)
+        
+    return scrap
 
 async def get_scrap_by_id(session: AsyncSession, scrap_id: int) -> Scrap | None:
 

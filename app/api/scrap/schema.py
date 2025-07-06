@@ -8,8 +8,8 @@ class StatusEnum(str, Enum):
     failed = "failed"
 
 class ScrapRequest(BaseModel):
-    user_id: int
-    category_id: str
+    user_id: int # 배포시 삭제 auth token 에서 가져오기
+    category_id: int
     type: str
     is_public: bool
     origin_url: str
@@ -23,7 +23,7 @@ class StatusResponse(BaseModel):
     id: int
     status: StatusEnum
     user_id: int
-    category_id: str
+    category_id: int
     origin_url: str
     type: str
     subject: str
@@ -34,7 +34,7 @@ class StatusResponse(BaseModel):
     modified_at: datetime
 
 class UpdateScrapRequest(BaseModel):
-    category_id: str
+    category_id: int
     type: str
     subject: str
     content: str

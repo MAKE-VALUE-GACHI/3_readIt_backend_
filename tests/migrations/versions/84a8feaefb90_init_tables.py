@@ -39,7 +39,7 @@ def upgrade() -> None:
         sa.Column("task_id", sa.String(255), unique=True, nullable=False),
         sa.Column("status", sa.String(255), nullable=False, server_default=sa.text("'processing'")),
         sa.Column("user_id", sa.Integer, nullable=False),
-        sa.Column("category_id", sa.String(255), nullable=True),
+        sa.Column("category_id", sa.BigInteger, nullable=True),
         sa.Column("type", sa.String(255), nullable=False),
         sa.Column("subject", sa.String(255), nullable=False),
         sa.Column("content", sa.String(2000), nullable=False),

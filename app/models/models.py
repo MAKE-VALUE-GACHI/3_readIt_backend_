@@ -50,3 +50,13 @@ class Category(Base):
     name = Column(String, nullable=False)
 
     scraps = relationship('Scrap', back_populates='category')
+
+
+class Comment(Base):
+    __tablename__ = "comment"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    scrap_id = Column(Integer, ForeignKey(Scrap.id), nullable=False)
+    content = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), default=now())

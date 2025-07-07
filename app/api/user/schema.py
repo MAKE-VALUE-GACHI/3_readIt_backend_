@@ -40,3 +40,8 @@ class GetUserScrapRes(BaseModel):
     subject: str
     category: str = Field(validation_alias=".", default="etc")
     created_at: datetime
+
+
+class SetScrapVisibilityReq(BaseModel):
+    scrap_id: int
+    is_public: bool

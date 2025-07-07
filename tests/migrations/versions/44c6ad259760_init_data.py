@@ -49,6 +49,21 @@ def upgrade() -> None:
                 "origin_url": "https://example.com/test-scrap",
                 "created_at": "2025-06-19 19:48:33.302004",
                 "modified_at": "2025-06-19 19:48:33.302004"
+            },
+            {
+                "id": 2,
+                "task_id": "task-2",
+                "status": "processing",
+                "user_id": 1,
+                "category_id": 1,
+                "type": "one-line",
+                "subject": "테스트 스크랩",
+                "content": "테스트 스크랩 내용",
+                "is_public": False,
+                "view_count": 0,
+                "origin_url": "https://example.com/test-scrap",
+                "created_at": "2025-06-19 19:48:33.302004",
+                "modified_at": "2025-06-19 19:48:33.302004"
             }
         ]
     )

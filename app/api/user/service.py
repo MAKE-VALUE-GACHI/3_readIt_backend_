@@ -6,6 +6,7 @@ from app.api.user import schema, repository
 from app.exceptions.custom_exception import CustomException
 from app.models.models import User
 from app.security import TokenPayload
+from app.utils import datetime_utils
 
 
 async def get_user(session, current_user: TokenPayload):
@@ -66,7 +67,10 @@ async def get_scraps(session, current_user: TokenPayload, request: schema.GetUse
     async with session as session:
         try:
             offset, limit = request.get_offset_limit()
-            filter_dict = {"category": request.category}
+            filter_dict = {}
+
+            if request.category:
+                filter_dict['category'] = request.category
 
             scraps = await repository.find_all_scrap_by_user_id(
                 session,
@@ -80,7 +84,7 @@ async def get_scraps(session, current_user: TokenPayload, request: schema.GetUse
             contents = []
             for scrap in scraps:
                 item = schema.GetUserScrapRes.model_validate(scrap)
-                item.category_name = scrap.category.name if scrap.category else "etc"
+                item.category = scrap.category.name if scrap.category else "etc"
                 contents.append(item)
 
             return contents, total
@@ -91,3 +95,28 @@ async def get_scraps(session, current_user: TokenPayload, request: schema.GetUse
             await session.rollback()
             logger.error("error : {}", sys.exc_info())
             raise CustomException("스크랩 조회 실패")
+
+
+async def set_scrap_visibility(session, current_user: TokenPayload, request: schema.SetScrapVisibilityReq):
+    try:
+        async with session as session:
+            scrap = await repository.find_scrap_by_id(session, request.scrap_id)
+
+            if not scrap:
+                raise CustomException(status_code=404, message="스크랩 정보 미존재")
+
+            if scrap.user_id != int(current_user.sub):
+                raise CustomException(status_code=403, message="권한 없음")
+
+            scrap.is_public = request.is_public
+            scrap.modified_at = datetime_utils.now()
+
+            await session.commit()
+
+    except CustomException as ce:
+        await session.rollback()
+        raise ce
+    except Exception as e:
+        await session.rollback()
+        logger.error("error : {}", sys.exc_info())
+        raise CustomException("스크랩 공개 여부 설정 실패")

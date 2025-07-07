@@ -55,6 +55,19 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer, nullable=False),
         sa.Column("name", sa.String(255), nullable=False)
     )
+    op.create_table(
+        "comment",
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
+        sa.Column("user_id", sa.Integer, nullable=False),
+        sa.Column("scrap_id", sa.Integer, nullable=False),
+        sa.Column("content", sa.String(255), nullable=False),
+        sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False)
+    )
+    op.create_table(
+        "scrap_like",
+        sa.Column("user_id", sa.Integer, primary_key=True),
+        sa.Column("scrap_id", sa.Integer, primary_key=True)
+    )
 
 
 def downgrade() -> None:

@@ -11,6 +11,7 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 @router.get(
     path="",
+    name="회원 정보 조회",
     response_model=CommonRes[schema.GetUserRes]
 )
 async def get_user(current_user=Depends(get_current_user), session=Depends(get_session)):
@@ -22,6 +23,7 @@ async def get_user(current_user=Depends(get_current_user), session=Depends(get_s
 
 @router.put(
     path="",
+    name="회원 정보 업데이트",
     response_model=CommonRes
 )
 async def update_user(
@@ -38,6 +40,7 @@ async def update_user(
 
 @router.get(
     path="/scraps",
+    name="내 스크랩 목록 조회",
     response_model=CommonRes[PagingResponse[schema.GetUserScrapRes]]
 )
 async def my_scraps(
@@ -50,3 +53,20 @@ async def my_scraps(
     contents, total = await service.get_scraps(session, current_user, request)
 
     return CommonRes(data=PagingResponse.create(request, total, contents))
+
+
+@router.patch(
+    path="/scrap/visibility",
+    name="스크랩 공개여부 설정",
+    response_model=CommonRes
+)
+async def set_scrap_visibility(
+        request: schema.SetScrapVisibilityReq,
+        session=Depends(get_session),
+        current_user=Depends(get_current_user)
+):
+    logger.info("set_scrap_visibility * {}", request)
+
+    await service.set_scrap_visibility(session, current_user, request)
+
+    return CommonRes()

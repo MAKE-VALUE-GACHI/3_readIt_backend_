@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -28,7 +29,7 @@ class UpdateUserReq(BaseModel):
 
 
 class GetUserScrapReq(PagingRequest):
-    category: Optional[str] = "etc"
+    category: Optional[str] = None
 
 
 class GetUserScrapRes(BaseModel):
@@ -37,4 +38,10 @@ class GetUserScrapRes(BaseModel):
     id: int
     type: str
     subject: str
-    category_name: Optional[str] = "etc"
+    category: str = Field(validation_alias=".", default="etc")
+    created_at: datetime
+
+
+class SetScrapVisibilityReq(BaseModel):
+    scrap_id: int
+    is_public: bool

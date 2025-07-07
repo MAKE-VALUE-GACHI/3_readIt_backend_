@@ -39,12 +39,19 @@ async def find_all_scrap_by_user_id(session: AsyncSession, user_id: int, filter_
 
 async def count_scrap_by_user_id(session: AsyncSession, user_id: int, filter_dict: dict):
     query = select(func.count(Scrap.id)).join(Scrap.category)
-    
+
     conditions = [Scrap.user_id == user_id]
 
     if filter_dict.get('category'):
         conditions.append(Category.name == filter_dict['category'])
 
     query = query.where(and_(*conditions))
+    result = await session.execute(query)
+    return result.scalar()
+
+
+async def find_scrap_by_id(session: AsyncSession, scrap_id: int) -> Scrap:
+    query = select(Scrap).where(Scrap.id == scrap_id)
+
     result = await session.execute(query)
     return result.scalar()

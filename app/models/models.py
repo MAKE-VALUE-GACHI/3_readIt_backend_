@@ -18,6 +18,7 @@ class User(Base):
     created_at = Column(TIMESTAMP(timezone=True), default=now())
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
     deleted_at = Column(TIMESTAMP(timezone=True))
+
     scraps = relationship('Scrap', back_populates='user')
 
 
@@ -40,6 +41,7 @@ class Scrap(Base):
 
     category = relationship('Category', back_populates='scraps', uselist=False)
     user = relationship('User', back_populates='scraps')
+    likes = relationship('ScrapLike', back_populates='scrap', cascade='all, delete-orphan', lazy='dynamic')
 
 
 class Category(Base):
@@ -67,3 +69,5 @@ class ScrapLike(Base):
 
     user_id = Column('user_id', ForeignKey('user.id'), primary_key=True)
     scrap_id = Column('scrap_id', ForeignKey('scrap.id'), primary_key=True)
+
+    scrap = relationship('Scrap', back_populates='likes')

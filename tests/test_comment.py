@@ -27,3 +27,23 @@ def test_add_comment(setup_database, database_session, test_client, user_auth_he
     assert comment
     assert scrap_id == comment.scrap_id
     assert content == comment.content
+
+
+def test_get_comments_success(setup_database, database_session, test_client, user_auth_header):
+    request = {
+        'page': 1,
+        'scrap_id': 1
+    }
+
+    response = test_client.get(
+        url="/comment",
+        params=request,
+        headers=user_auth_header
+    )
+
+    assert 200 == response.status_code
+    data = response.json()
+    logger.debug("response : {}", data)
+
+    assert 0 < data['data']['total_count']
+    assert 0 < len(data['data']['content'])

@@ -60,3 +60,10 @@ class Comment(Base):
     scrap_id = Column(Integer, ForeignKey(Scrap.id), nullable=False)
     content = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), default=now())
+
+
+class ScrapLike(Base):
+    __tablename__ = 'scrap_like'
+
+    user_id = Column('user_id', ForeignKey('user.id'), primary_key=True)
+    scrap_id = Column('scrap_id', ForeignKey('scrap.id'), primary_key=True)

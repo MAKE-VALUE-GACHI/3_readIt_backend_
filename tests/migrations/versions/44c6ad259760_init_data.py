@@ -77,6 +77,17 @@ def upgrade() -> None:
             }
         ]
     )
+    bulk_insert(
+        models.Comment.__table__,
+        [
+            {
+                "id": 1,
+                "user_id": 1,
+                "scrap_id": 1,
+                "content": "테스트 댓글"
+            }
+        ]
+    )
 
 
 def downgrade() -> None:

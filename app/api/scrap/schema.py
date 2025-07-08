@@ -1,14 +1,17 @@
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+
 from pydantic import BaseModel, ConfigDict
+
 
 class StatusEnum(str, Enum):
     processing = "processing"
     completed = "completed"
     failed = "failed"
 
+
 class ScrapRequest(BaseModel):
-    user_id: int # 배포시 삭제 auth token 에서 가져오기
+    user_id: int  # 배포시 삭제 auth token 에서 가져오기
     category_id: int
     type: str
     is_public: bool
@@ -17,6 +20,7 @@ class ScrapRequest(BaseModel):
 
 class ScrapResponse(BaseModel):
     task_id: str
+
 
 class StatusResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -29,9 +33,11 @@ class StatusResponse(BaseModel):
     subject: str
     content: str
     is_public: bool
+    like_count: int
     view_count: int
     created_at: datetime
     modified_at: datetime
+
 
 class UpdateScrapRequest(BaseModel):
     category_id: int

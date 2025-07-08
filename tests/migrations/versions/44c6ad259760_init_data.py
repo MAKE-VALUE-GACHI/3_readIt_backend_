@@ -45,6 +45,7 @@ def upgrade() -> None:
                 "subject": "테스트 스크랩",
                 "content": "테스트 스크랩 내용",
                 "is_public": True,
+                "like_count": 0,
                 "view_count": 0,
                 "origin_url": "https://example.com/test-scrap",
                 "created_at": "2025-06-19 19:48:33.302004",
@@ -60,6 +61,7 @@ def upgrade() -> None:
                 "subject": "테스트 스크랩",
                 "content": "테스트 스크랩 내용",
                 "is_public": False,
+                "like_count": 1,
                 "view_count": 0,
                 "origin_url": "https://example.com/test-scrap",
                 "created_at": "2025-06-19 19:48:33.302004",
@@ -85,6 +87,15 @@ def upgrade() -> None:
                 "user_id": 1,
                 "scrap_id": 1,
                 "content": "테스트 댓글"
+            }
+        ]
+    )
+    bulk_insert(
+        models.ScrapLike.__table__,
+        [
+            {
+                "user_id": 1,
+                "scrap_id": 2
             }
         ]
     )

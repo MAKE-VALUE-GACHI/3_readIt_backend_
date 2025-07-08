@@ -44,6 +44,7 @@ def upgrade() -> None:
         sa.Column("subject", sa.String(255), nullable=False),
         sa.Column("content", sa.String(2000), nullable=False),
         sa.Column("is_public", sa.Boolean, nullable=False, server_default=sa.text("false")),
+        sa.Column("like_count", sa.Integer, nullable=False, server_default="0"),
         sa.Column("view_count", sa.Integer, nullable=False, server_default="0"),
         sa.Column("origin_url", sa.String(255), nullable=True),
         sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False),

@@ -34,6 +34,7 @@ class Scrap(Base):
     subject = Column(String, nullable=False)
     content = Column(String, nullable=False)
     is_public = Column(Boolean, default=False, nullable=False)
+    like_count = Column(Integer, default=0, nullable=False)
     view_count = Column(Integer, default=0, nullable=False)
     origin_url = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), default=now())

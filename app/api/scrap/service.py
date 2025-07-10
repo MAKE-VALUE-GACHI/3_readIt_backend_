@@ -6,15 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.scrap import schema
 from app.api.scrap.repository import create_scrap_record, get_scrap_by_task_id, update_scrap_record, get_scrap_by_id, \
-    delete_scrap_record, get_scrap_like_by_ids
-from app.api.scrap.schema import ScrapRequest, UpdateScrapRequest
+    delete_scrap_record, get_scrap_like_by_ids, get_scraps_with_ordering
+from app.api.scrap.schema import ScrapRequest, UpdateScrapRequest, PaginatedScrapResponse
 from app.dependency.celery_service import celery_app
 from app.exceptions.custom_exception import CustomException
 from app.models.models import ScrapLike
 from app.security import TokenPayload
+from app.api.common_schema import PagingRequest
 
 
-async def create_scrap_service(session, task_id: uuid.uuid4, scrap_in: ScrapRequest) -> str:
+async def create_scrap_service(session, task_id: uuid.uuid4, scrap_in: ScrapRequest, user_id) -> str:
     try:
         await create_scrap_record(
             session=session,
@@ -50,10 +51,11 @@ async def get_summary(session, task_id: str):
 async def update_scrap_service(
         session: AsyncSession,
         scrap_id: int,
-        scrap_in: UpdateScrapRequest
+        scrap_in: UpdateScrapRequest,
+        user_id: int
 ):
     try:
-        scrap = await get_scrap_by_id(session, scrap_id=scrap_id)
+        scrap = await get_scrap_by_id(session, scrap_id=scrap_id, user_id=user_id)
 
         if scrap in None:
             raise CustomException("스크랩 미존재")
@@ -73,10 +75,11 @@ async def update_scrap_service(
 
 async def delete_scrap_service(
         session: AsyncSession,
-        scrap_id: int
+        scrap_id: int,
+        user_id: int
 ):
     try:
-        deleted_scrap = await delete_scrap_record(session=session, scrap_id=scrap_id)
+        deleted_scrap = await delete_scrap_record(session=session, scrap_id=scrap_id, user_id=user_id)
         if deleted_scrap is None:
             raise CustomException("스크랩 미존재")
 
@@ -149,3 +152,22 @@ async def revoke_scrap_like(session: AsyncSession, current_user: TokenPayload, s
 
         logger.error("error : {}", sys.exc_info())
         raise CustomException(status_code=500, message="스크랩 공감 오류") from e
+
+
+async def get_paginated_scraps(
+    session: AsyncSession,
+    *,
+    order_by: str,
+    paging_params: PagingRequest
+):
+
+    skip, limit = paging_params.get_offset_limit()
+    
+    total, scraps = await get_scraps_with_ordering(
+        session=session,
+        order_by=order_by,
+        skip=skip,
+        limit=limit
+    )
+    
+    return PaginatedScrapResponse(total=total, items=scraps)

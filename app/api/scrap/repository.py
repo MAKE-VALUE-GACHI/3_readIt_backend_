@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, desc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.scrap.schema import ScrapRequest, StatusEnum, UpdateScrapRequest
@@ -12,12 +12,13 @@ async def create_scrap_record(
         *,
         task_id: str,
         scrap_in: ScrapRequest,
+        user_id: int,
         status: StatusEnum = StatusEnum.processing
 ) -> Scrap:
     db_scrap = Scrap(
         task_id=task_id,
         status=status,
-        user_id=scrap_in.user_id,
+        user_id=user_id,
         category_id=scrap_in.category_id,
         type=scrap_in.type,
         subject="제목을 생성 중입니다...",
@@ -45,8 +46,8 @@ async def get_scrap_by_task_id(session: AsyncSession, task_id: str) -> Scrap | N
     return scrap
 
 
-async def get_scrap_by_id(session: AsyncSession, scrap_id: int) -> Scrap | None:
-    query = select(Scrap).where(Scrap.id == scrap_id)
+async def get_scrap_by_id(session: AsyncSession, scrap_id: int, user_id: int) -> Scrap | None:
+    query = select(Scrap).where(Scrap.id == scrap_id, Scrap.user_id == user_id)
     result = await session.execute(query)
     return result.scalar()
 
@@ -96,8 +97,8 @@ async def update_scrap_record(session: AsyncSession, scrap, scrap_in: UpdateScra
     return scrap
 
 
-async def delete_scrap_record(session: AsyncSession, scrap_id: int):
-    scrap_to_delete = await get_scrap_by_id(session=session, scrap_id=scrap_id)
+async def delete_scrap_record(session: AsyncSession, scrap_id: int, user_id: int):
+    scrap_to_delete = await get_scrap_by_id(session=session, scrap_id=scrap_id, user_id=user_id)
 
     if scrap_to_delete is None:
         return None
@@ -117,3 +118,34 @@ async def get_scrap_like_by_ids(session: AsyncSession, scrap_id: int, user_id: i
 
     result = await session.execute(query)
     return result.scalar()
+
+async def get_scraps_with_ordering(
+    session: AsyncSession,
+    *,
+    order_by: str = "latest", # 정렬 기준: 'latest', 'views', 'likes'
+    skip: int = 0,
+    limit: int = 10
+):
+
+    if order_by == "views":
+        order_clause = desc(Scrap.view_count)
+    elif order_by == "likes":
+        order_clause = desc(Scrap.like_count)
+    else:
+        order_clause = desc(Scrap.created_at)
+
+    count_query = select(func.count()).select_from(Scrap)
+    total_count_result = await session.execute(count_query)
+    total = total_count_result.scalar_one()
+
+    data_query = (
+        select(Scrap)
+        .order_by(order_clause)
+        .offset(skip)
+        .limit(limit)
+    )
+    
+    result = await session.execute(data_query)
+    items = result.scalars().all()
+    
+    return total, items

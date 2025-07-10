@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
+from typing import List
 
 
 class StatusEnum(str, Enum):
@@ -11,7 +12,6 @@ class StatusEnum(str, Enum):
 
 
 class ScrapRequest(BaseModel):
-    user_id: int  # 배포시 삭제 auth token 에서 가져오기
     category_id: int
     type: str
     is_public: bool
@@ -45,3 +45,19 @@ class UpdateScrapRequest(BaseModel):
     subject: str
     content: str
     is_public: bool
+
+
+class ScrapResponse(BaseModel):
+    id: int
+    subject: str
+    content: str | None = None
+    like_count: int
+    view_count: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# --- 목록 조회를 위한 페이지네이션 응답 ---
+class PaginatedScrapResponse(BaseModel):
+    total: int # 전체 아이템 개수
+    items: List[ScrapResponse] # 현재 페이지의 아이템 목록

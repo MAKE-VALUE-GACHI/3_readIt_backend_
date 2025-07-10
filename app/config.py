@@ -6,7 +6,7 @@ load_dotenv(verbose=True)
 
 
 class Settings(BaseSettings):
-    APP_PORT: int = 8000
+    APP_PORT: int = 8080
     # Database
     DATABASE_HOST: str
     DATABASE_NAME: str

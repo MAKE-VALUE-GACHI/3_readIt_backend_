@@ -12,6 +12,9 @@ services:
     depends_on:
       - redis
       - db
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   celery:
     build: .
@@ -24,6 +27,9 @@ services:
     depends_on:
       - redis
       - db
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   redis:
     image: redis:7

@@ -10,7 +10,8 @@ engine_url = URL.create(
     username=settings.DATABASE_USER,
     password=settings.DATABASE_PASSWORD,
     host=settings.DATABASE_HOST,
-    database=settings.DATABASE_NAME
+    database=settings.DATABASE_NAME,
+    query={"charset": "utf8mb4"}
 )
 
 engine = create_async_engine(

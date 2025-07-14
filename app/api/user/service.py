@@ -7,6 +7,8 @@ from app.exceptions.custom_exception import CustomException
 from app.models.models import User
 from app.security import TokenPayload
 from app.utils import datetime_utils
+from app.api.category.service import create_category
+from app.api.category.schema import CreateCategoryRequest
 
 
 async def get_user(session, current_user: TokenPayload):
@@ -32,8 +34,18 @@ async def store_user(session, request: schema.StoreUserReq):
             password=request.password,
             name=request.name
         )
+        
 
         session.add(new_user)
+        await session.flush()
+
+        default_category_in = CreateCategoryRequest(name="기타")
+        await create_category(
+            session=session,
+            user_id=new_user.id,
+            request=default_category_in
+        )
+        
         await session.commit()
         await session.refresh(new_user)
 

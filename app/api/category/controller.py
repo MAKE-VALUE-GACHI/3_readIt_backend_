@@ -1,6 +1,6 @@
 import uuid
 
-from app.api.category.schema import CreateCategoryRequest, UpdateCategoryRequest, DeleteCategoryRequest, CategoryResponse
+from app.api.category.schema import CreateCategoryRequest, UpdateCategoryRequest, DeleteCategoryRequest, CategoryResponse, CategoryResponseList
 from fastapi import status, Depends, APIRouter
 from app.db.session import get_session
 from app.api.common_schema import CommonRes
@@ -30,3 +30,15 @@ async def delete_category(category_id: int, current_user=Depends(get_current_use
     category = await service.delete_category(session=session, category_id=category_id, user_id=int(current_user.sub))
 
     return CommonRes(data=None)
+
+@router.get("/", response_model=CommonRes[CategoryResponseList])
+async def get_category_by_user_id(
+    current_user=Depends(get_current_user),
+    session=Depends(get_session)
+):
+    categories = await service.get_category_by_user_id(session, int(current_user.sub))
+    print(categories)
+    if not categories:
+        return CommonRes(data=[])
+
+    return CommonRes(data=CategoryResponseList(categories=categories))

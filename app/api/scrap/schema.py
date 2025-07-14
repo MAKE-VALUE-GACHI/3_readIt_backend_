@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 
 
 class StatusEnum(str, Enum):
@@ -12,13 +12,13 @@ class StatusEnum(str, Enum):
 
 
 class ScrapRequest(BaseModel):
-    category_id: int
+    category_id: Optional[int] = None
     type: str
     is_public: bool
     origin_url: str
 
 
-class ScrapResponse(BaseModel):
+class CreateScrapResponse(BaseModel):
     task_id: str
 
 
@@ -27,7 +27,7 @@ class StatusResponse(BaseModel):
     id: int
     status: StatusEnum
     user_id: int
-    category_id: int
+    category_id: Optional[int] = None
     origin_url: str
     type: str
     subject: str
@@ -40,7 +40,7 @@ class StatusResponse(BaseModel):
 
 
 class UpdateScrapRequest(BaseModel):
-    category_id: int
+    category_id: Optional[int] = None
     type: str
     subject: str
     content: str

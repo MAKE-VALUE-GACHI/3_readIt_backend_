@@ -44,6 +44,8 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8
 
 volumes:
   db_data:

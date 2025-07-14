@@ -3,7 +3,7 @@ import uuid
 from fastapi import status, Depends, APIRouter
 
 from app.api.common_schema import CommonRes
-from app.api.scrap.schema import ScrapResponse, ScrapRequest, StatusResponse, UpdateScrapRequest, PaginatedScrapResponse
+from app.api.scrap.schema import ScrapResponse, ScrapRequest, StatusResponse, UpdateScrapRequest, PaginatedScrapResponse, CreateScrapResponse
 from app.api.scrap.service import create_scrap_service, get_summary, update_scrap_service, delete_scrap_service, \
     add_scrap_like, revoke_scrap_like, get_paginated_scraps
 from app.db.session import get_session
@@ -14,7 +14,7 @@ from app.api.common_schema import PagingRequest
 router = APIRouter(prefix="/scrap", tags=["scrap"])
 
 
-@router.post("/summaries", response_model=CommonRes[ScrapResponse], status_code=status.HTTP_202_ACCEPTED)
+@router.post("/summaries", response_model=CommonRes[CreateScrapResponse], status_code=status.HTTP_202_ACCEPTED)
 async def request_scrap(request: ScrapRequest, current_user=Depends(get_current_user), session=Depends(get_session)):
     task_id = str(uuid.uuid4())
 

@@ -17,3 +17,7 @@ class UpdateCategoryRequest(BaseModel):
 
 class DeleteCategoryRequest(BaseModel):
     pass
+
+class CategoryResponseList(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    categories: list[CategoryResponse]

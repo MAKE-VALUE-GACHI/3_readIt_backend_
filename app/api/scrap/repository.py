@@ -13,18 +13,19 @@ async def create_scrap_record(
         task_id: str,
         scrap_in: ScrapRequest,
         user_id: int,
+        category_id: int,
         status: StatusEnum = StatusEnum.processing
 ) -> Scrap:
     db_scrap = Scrap(
         task_id=task_id,
         status=status,
         user_id=user_id,
-        category_id=scrap_in.category_id,
-        type=scrap_in.type,
+        category_id=category_id,
+        type=scrap_in.type.value,
         subject="제목을 생성 중입니다...",
         content="",
         is_public=scrap_in.is_public,
-        origin_url=str(scrap_in.origin_url)
+        origin_url=str(scrap_in.origin_url) if scrap_in.origin_url else None
     )
     session.add(db_scrap)
     await session.commit()

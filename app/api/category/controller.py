@@ -37,7 +37,6 @@ async def get_category_by_user_id(
     session=Depends(get_session)
 ):
     categories = await service.get_category_by_user_id(session, int(current_user.sub))
-    print(categories)
     if not categories:
         return CommonRes(data=[])
 

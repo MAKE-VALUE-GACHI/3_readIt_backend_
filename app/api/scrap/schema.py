@@ -1,8 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, HttpUrl
 from typing import List, Optional
+from app.models.enums import ScrapType
 
 
 class StatusEnum(str, Enum):
@@ -12,10 +13,11 @@ class StatusEnum(str, Enum):
 
 
 class ScrapRequest(BaseModel):
-    category_id: Optional[int] = None
-    type: str
+    category_id: Optional[int]
+    type: ScrapType
     is_public: bool
-    origin_url: str
+    origin_url: Optional[HttpUrl] = None
+    text: Optional[str] = None
 
 
 class CreateScrapResponse(BaseModel):
@@ -27,8 +29,8 @@ class StatusResponse(BaseModel):
     id: int
     status: StatusEnum
     user_id: int
-    category_id: Optional[int] = None
-    origin_url: str
+    category_id: Optional[int]
+    origin_url: Optional[HttpUrl] = None
     type: str
     subject: str
     content: str

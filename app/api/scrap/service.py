@@ -26,24 +26,25 @@ async def create_scrap_service(session, task_id: uuid.uuid4, scrap_in: ScrapRequ
             if not default_category:
                 raise CustomException("기본 카테고리 미존재")
             
-            category_id = default_category.id
-
+            category_id = int(default_category.id)
+        
         scrap = await create_scrap_record(
             session=session,
             task_id=task_id,
             scrap_in=scrap_in,
+            category_id=category_id,
             user_id=user_id
         )
         if not scrap:
             raise CustomException("스크랩 생성 실패")
 
         celery_app.send_task('app.dependency.celery_service.create_scrap_task',
-                             args=[task_id, scrap_in.origin_url, scrap_in.type])
+                             args=[task_id, scrap_in.type.value, str(scrap_in.origin_url) if scrap_in.origin_url else None, scrap_in.text])
         return schema.CreateScrapResponse.model_validate({"task_id": task_id})
 
     except Exception as e:
         logger.error("error : {}", sys.exc_info())
-        raise CustomException("스크랩 생성 실패")
+        raise CustomException(f"스크랩 생성 실패")
 
 
 async def get_summary(session, task_id: str):

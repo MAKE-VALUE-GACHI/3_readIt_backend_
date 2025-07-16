@@ -10,12 +10,13 @@ from app.models.models import Scrap
 import httpx
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
+from app.models.enums import ScrapType
 
 celery_app = Celery('tasks', broker='redis://redis:6379/0', backend='redis://redis:6379/0')
 
 openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
-CHUNK_SIZE = 3000
+CHUNK_SIZE = 8000
 CHUNK_OVERLAP = 200
 
 # --- 2. 맵리듀스 헬퍼 함수 정의 ---
@@ -54,7 +55,7 @@ async def summarize_final(combined_summary: str, summary_type: str) -> str:
             },
             {
                 "role": "user",
-                "content": f"다음은 긴 글의 각 부분을 요약한 내용입니다. 이 내용들을 바탕으로 전체 글을 아우르는 최종 '제목'과 '{summary_type}' 형식의 '내용'을 생성해줘. 응답 형식은 '제목: [여기에 제목]\n내용: [여기에 내용]' 이 두 줄로만 작성해줘.\n\n---개별 요약본들---\n{combined_summary}"
+                "content": f"다음은 긴 글의 각 부분을 요약한 내용입니다. 이 내용들을 바탕으로 전체 글을 아우르는 최종 '제목'과 '{summary_type}' 형식의 '내용'을 생성해줘. 응답 형식은 '제목: [여기에 제목]\n내용: [여기에 내용]' 이 두 가지로만 작성해줘.\n\n---개별 요약본들---\n{combined_summary}"
             }
         ]
     )
@@ -63,29 +64,41 @@ async def summarize_final(combined_summary: str, summary_type: str) -> str:
 
 
 @celery_app.task
-def create_scrap_task(task_id: str, url: str, summary_type: str):
+def create_scrap_task(task_id: str, type: str, url: str | None = None, text: str | None = None):
 
     async def _async_update_db():
         async with AsyncSessionLocal() as session:
-            ai_response = ""
-            try:
-                async with httpx.AsyncClient() as client:
-                    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
-                    response = await client.get(url, timeout=30.0, follow_redirects=True, headers=headers)
-                    response.raise_for_status()
                 
-                soup = BeautifulSoup(response.text, 'lxml')
-                paragraphs = [p.get_text() for p in soup.find_all('p')]
-                text_content = " ".join(paragraphs).strip()
+            ai_response = ""
+            summary_type = ""
+
+            try:
+                if type == "oneline":
+                    summary_type = "핵심을 짧고 임팩트 있게 한 문장으로 요약"
+                elif type == "fiveline":
+                    summary_type = "뉴스레터처럼 전체 내용을 간결하게 10문장 이내로 요약, 분량이 최소 100자 이상이 되도록 작성"
+                elif type == "insight":
+                    summary_type = "5문장 이상으로 상세히 요약하고, AI의 독창적인 인사이트를 덧붙여 총 분량이 최소 500자 이상이 되도록 작성"
+                elif type == "basic":
+                    summary_type = "글의 핵심 내용과 주제를 충실하게, 5문장 이상으로 상세히 요약, 분량이 최소 500자 이상이 되도록 작성"
+                
+                if text is not None:
+                    text_content = text.strip()
+                else:
+                    async with httpx.AsyncClient() as client:
+                        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+                        response = await client.get(url, timeout=30.0, follow_redirects=True, headers=headers)
+                        response.raise_for_status()
+                    soup = BeautifulSoup(response.text, 'lxml')
+                    paragraphs = [p.get_text() for p in soup.find_all('p')]
+                    text_content = " ".join(paragraphs).strip()
 
                 if not text_content:
                     raise ValueError("페이지에서 텍스트 콘텐츠를 추출할 수 없습니다.")
                 
-                print(f"[{task_id}] 텍스트 추출 완료 (글자 수: {len(text_content)})")
 
                 # --- AI 요약 (맵리듀스 분기 로직) ---
                 if len(text_content) <= CHUNK_SIZE:
-                    print(f"[{task_id}] ChatGPT API로 직접 요약 생성 중...")
                     chat_completion = await openai_client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
@@ -95,7 +108,7 @@ def create_scrap_task(task_id: str, url: str, summary_type: str):
                             },
                             {
                             "role": "user",
-                            "content": f"다음 텍스트를 기반으로, 적절한 '제목'과 '{summary_type}' 형식의 '내용'을 생성해줘. 응답 형식은 '제목: [여기에 제목]\n내용: [여기에 내용]' 이 두 줄로만 작성해줘.\n\n---텍스트 시작---\n{text_content[:3000]}\n---텍스트 끝---"
+                            "content": f"다음 텍스트를 기반으로, 적절한 '제목'과 '{summary_type}' 형식의 '내용'을 생성해줘. 응답 형식은 '제목: [여기에 제목]\n내용: [여기에 내용]' 이 두 가지로만 작성해줘.\n\n---텍스트 시작---\n{text_content[:3000]}\n---텍스트 끝---"
                             }
                             ]
                     )

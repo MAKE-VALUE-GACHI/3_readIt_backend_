@@ -25,7 +25,8 @@ async def create_scrap_record(
         subject="제목을 생성 중입니다...",
         content="",
         is_public=scrap_in.is_public,
-        origin_url=str(scrap_in.origin_url) if scrap_in.origin_url else None
+        origin_url=str(scrap_in.origin_url) if scrap_in.origin_url else None,
+        text = scrap_in.text if scrap_in.text else None,
     )
     session.add(db_scrap)
     await session.commit()

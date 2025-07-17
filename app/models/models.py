@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP, ForeignKey, Text
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.functions import now
 
@@ -37,6 +37,7 @@ class Scrap(Base):
     like_count = Column(Integer, default=0, nullable=False)
     view_count = Column(Integer, default=0, nullable=False)
     origin_url = Column(String, nullable=True)
+    text = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), default=now())
     modified_at = Column(TIMESTAMP(timezone=True), default=now())
 

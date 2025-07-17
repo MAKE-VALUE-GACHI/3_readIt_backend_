@@ -31,6 +31,7 @@ class StatusResponse(BaseModel):
     user_id: int
     category_id: Optional[int]
     origin_url: Optional[HttpUrl] = None
+    text: Optional[str] = None
     type: str
     subject: str
     content: str

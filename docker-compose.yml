@@ -19,7 +19,7 @@ services:
   celery:
     build: .
     image: readit_api
-    command: celery -A app.dependency.celery_service.celery_app worker --loglevel=info
+    command: celery -A app.dependency.celery_service.celery_app worker -c 1 --loglevel=info
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
     env_file:
